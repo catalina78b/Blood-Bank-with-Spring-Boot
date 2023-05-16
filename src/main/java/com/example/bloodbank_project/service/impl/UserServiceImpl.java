@@ -10,10 +10,9 @@ import com.example.bloodbank_project.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -121,29 +120,40 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Doctor findDoctorWithMinAppointments(DonationCenter donationCenter){
-        List<Doctor> doctorList = findAllDoctors();
-        if(doctorList.isEmpty()){
+    public Doctor findDoctorWithMinAppointments(DonationCenter donationCenter) {
+        List<Doctor> doctors = findAllDoctors();
+        if (doctors.isEmpty()) {
             return null;
         }
-        if(doctorList.size() == 1){
-            return doctorList.get(0);
+
+        List<Doctor> eligibleDoctors = doctors.stream()
+                .filter(doctor -> doctor.getDonationCenter().getId()==donationCenter.getId())
+                .collect(Collectors.toList());
+
+        if (eligibleDoctors.isEmpty()) {
+            return null;
         }
-        Map.Entry<Doctor,Integer> min = null;
-        Map<Doctor, Integer> doctorsAndNumberOfAppointments = new HashMap<>();
-        for (Doctor doctor : doctorList) {
-            if (doctor.getDonationCenter().equals(donationCenter)) {
-                List<Appointment> appointments = appointmentRepo.getAppointmentsByDoctor(doctor);
-                doctorsAndNumberOfAppointments.put(doctor, appointments.size());
-            }
+
+        Map<Doctor, Integer> appointmentsByDoctor = new HashMap<>();
+        for (Doctor doctor : eligibleDoctors) {
+            int appointmentCount = appointmentRepo.countByDoctorAndStatus(doctor, true);
+            appointmentsByDoctor.put(doctor, appointmentCount);
         }
-        for (Map.Entry<Doctor, Integer> entry : doctorsAndNumberOfAppointments.entrySet()) {
-            if (min == null || min.getValue() > entry.getValue()) {
-                min = entry;
-            }
-        }
-        return min.getKey();
+
+        int minAppointmentCount = Collections.min(appointmentsByDoctor.values());
+        List<Doctor> doctorsWithMinAppointments = appointmentsByDoctor.entrySet().stream()
+                .filter(entry -> entry.getValue() == minAppointmentCount)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        // If there are multiple doctors with the same minimum appointments, choose one randomly
+        int randomIndex = new Random().nextInt(doctorsWithMinAppointments.size());
+        Doctor selectedDoctor = doctorsWithMinAppointments.get(randomIndex);
+
+        System.out.println(selectedDoctor.getFirstName());
+        return selectedDoctor;
     }
+
     @Override
     public void updateDoctor(int id,String firstName, String lastName, String email,String password, String CNP, DonationCenter donationCenter){
         doctorRepo.updateDoctor(id,firstName,lastName,email,password,CNP, donationCenter);

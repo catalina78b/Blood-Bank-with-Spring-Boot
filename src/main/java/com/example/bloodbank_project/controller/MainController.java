@@ -40,11 +40,11 @@ public class MainController {
     public ResponseEntity<?> registration(@RequestBody DonorDTO donorDTO) {
         User existingUser = userService.findUserByEmail(donorDTO.getEmail());
         boolean accountCreated;
-        if (existingUser != null && existingUser.getEmail() != null && !existingUser.getEmail().isEmpty()) {
-            accountCreated=false;
+        if (existingUser != null) {
+            accountCreated = false;
         } else {
             userService.saveDonor(donorDTO);
-            accountCreated=true;
+            accountCreated = true;
         }
         return ResponseEntity.ok(accountCreated);
     }

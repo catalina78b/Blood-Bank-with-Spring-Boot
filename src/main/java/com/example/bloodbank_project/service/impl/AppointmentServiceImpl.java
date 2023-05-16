@@ -43,8 +43,34 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDonationCenter(donationCenterRepo.findDonationCenterById(appointmentDTO.getDonationCenter().getId()));
         appointment.setStatus(false);
 
+        System.out.println(appointmentDTO.getDonationCenter().getCenterName());
         Doctor doctor = userService.findDoctorWithMinAppointments(appointmentDTO.getDonationCenter());
         appointment.setDoctor(doctor);
         appointmentRepo.save(appointment);
+    }
+    @Override
+    public List<Appointment> findAllDoctorAppointments(Doctor doctor){
+        return appointmentRepo.findAppointmentsByDoctor(doctor);
+    }
+
+    @Override
+    public Appointment findById(int id) {
+        return appointmentRepo.findAppointmentById(id);
+    }
+    @Override
+    public void updateAppointment(int id,boolean status)
+    {
+        Appointment appointment=appointmentRepo.findAppointmentById(id);
+        if(appointment!=null)
+            appointmentRepo.updateAppointmentStatus(id,status);
+    }
+
+    @Override
+    public void deleteAppointmentById(int id) {
+        Appointment appointment=appointmentRepo.findAppointmentById(id);
+        if(appointment!=null)
+        {
+            appointmentRepo.deleteById(id);
+        }
     }
 }

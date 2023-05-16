@@ -2,8 +2,10 @@ package com.example.bloodbank_project.controller;
 
 import com.example.bloodbank_project.dto.DoctorDTO;
 import com.example.bloodbank_project.dto.DonorDTO;
+import com.example.bloodbank_project.entity.Appointment;
 import com.example.bloodbank_project.entity.Doctor;
 import com.example.bloodbank_project.entity.Donor;
+import com.example.bloodbank_project.service.AppointmentService;
 import com.example.bloodbank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -18,6 +24,9 @@ import javax.transaction.Transactional;
 public class DonorController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     @GetMapping("{id}")
     public ResponseEntity<Donor> getDonorById(@PathVariable  int id){
@@ -47,4 +56,5 @@ public class DonorController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
+
 }
