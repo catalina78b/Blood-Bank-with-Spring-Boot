@@ -16,12 +16,11 @@ import javax.websocket.server.PathParam;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -39,6 +38,23 @@ public class AppointmentController {
         appointmentService.saveAppointment(appointmentDTO);
         return ResponseEntity.ok(new AppointmentResponse(true, false, false));
     }
+
+    @PostMapping("/check-availability")
+    public ResponseEntity<?> checkAppointmentAvailability(@RequestBody AppointmentDTO appointmentDTO) {
+
+        // Check maximum donation limit for the appointment date
+        int maxDonationLimit = appointmentDTO.getDonationCenter().getMaxDonations();
+        int appointmentsCount = appointmentService.getAppointmentCountByDateAndDonationCenter(appointmentDTO.getDate(), appointmentDTO.getDonationCenter());
+
+        System.out.println(appointmentsCount);
+        if (appointmentsCount >= maxDonationLimit) {
+            return ResponseEntity.ok(false); // Maximum donation limit reached
+        }
+
+        return ResponseEntity.ok(true); // Appointment is available
+    }
+
+
 
     @GetMapping("{id}")
     public ResponseEntity<List<Appointment>> getDonorAppointments(@PathVariable int id) {

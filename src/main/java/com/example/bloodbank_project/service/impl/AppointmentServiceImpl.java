@@ -1,22 +1,29 @@
 package com.example.bloodbank_project.service.impl;
 
 import com.example.bloodbank_project.dto.AppointmentDTO;
-import com.example.bloodbank_project.entity.Appointment;
-import com.example.bloodbank_project.entity.Doctor;
-import com.example.bloodbank_project.entity.Donor;
-import com.example.bloodbank_project.entity.User;
+import com.example.bloodbank_project.entity.*;
 import com.example.bloodbank_project.repository.AppointmentRepo;
 import com.example.bloodbank_project.repository.DonationCenterRepo;
 import com.example.bloodbank_project.service.AppointmentService;
 import com.example.bloodbank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.text.SimpleDateFormat;
+
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -34,11 +41,29 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public void saveAppointment(AppointmentDTO appointmentDTO) throws ParseException {
+    public void saveAppointment(AppointmentDTO appointmentDTO) {
+        System.out.println(appointmentDTO.getDate().toString());
         Appointment appointment = new Appointment();
-        SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-        Date date = formatter.parse(formatter.format(appointmentDTO.getDate()));
-        appointment.setDate(date);
+
+        // Convert the date to LocalDateTime
+        Date date = appointmentDTO.getDate();
+        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+
+        // Convert the LocalDateTime to UTC timezone
+        ZoneId utcZone = ZoneId.of("UTC");
+        LocalDateTime utcDateTime = dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(utcZone).toLocalDateTime();
+
+        // Format the LocalDateTime as a string
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+        String dateString = utcDateTime.format(formatter);
+
+        // Parse the string to LocalDateTime
+        LocalDateTime parsedDateTime = LocalDateTime.parse(dateString, formatter);
+
+        // Convert the LocalDateTime to Date in UTC timezone
+        Date utcDate = Date.from(parsedDateTime.atZone(utcZone).toInstant());
+
+        appointment.setDate(utcDate);
         appointment.setDonor(userService.findDonorById(appointmentDTO.getDonorId()));
         appointment.setDonationCenter(donationCenterRepo.findDonationCenterById(appointmentDTO.getDonationCenter().getId()));
         appointment.setStatus(false);
@@ -48,6 +73,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDoctor(doctor);
         appointmentRepo.save(appointment);
     }
+
+
     @Override
     public List<Appointment> findAllDoctorAppointments(Doctor doctor){
         return appointmentRepo.findAppointmentsByDoctor(doctor);
@@ -73,4 +100,18 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointmentRepo.deleteById(id);
         }
     }
+
+    @Override
+    public Page<Appointment> findDoctorAppointments(Doctor doctor, Pageable pageable) {
+        return appointmentRepo.findByDoctor(doctor, pageable);
+    }
+    @Override
+    public List<Appointment> findDoctorAppointmentsToday(Doctor doctor) {
+        return appointmentRepo.findDoctorAppointmentsToday(doctor);
+    }
+    @Override
+    public int getAppointmentCountByDateAndDonationCenter(Date date, DonationCenter donationCenter) {
+        return appointmentRepo.getAppointmentCountByDateAndDonationCenter(date, donationCenter);
+    }
+
 }

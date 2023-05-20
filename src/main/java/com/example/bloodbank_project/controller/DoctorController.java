@@ -9,11 +9,14 @@ import com.example.bloodbank_project.service.AppointmentService;
 import com.example.bloodbank_project.service.DonationCenterService;
 import com.example.bloodbank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -80,9 +83,22 @@ public class DoctorController {
 
     }
     @GetMapping("/{id}/appointments")
-    public ResponseEntity<List<Appointment>> getAppointments(@PathVariable int id) {
+    public ResponseEntity<Page<Appointment>> getAppointments(
+            @PathVariable int id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
         Doctor doctor = userService.findDoctorById(id);
-        return ResponseEntity.ok(appointmentService.findAllDoctorAppointments(doctor));
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<Appointment> appointments = appointmentService.findDoctorAppointments(doctor, pageRequest);
+        return ResponseEntity.ok(appointments);
+    }
+    @GetMapping("/{id}/appointments/today")
+    public ResponseEntity<List<Appointment>> getTodayAppointments(@PathVariable int id) {
+        Doctor doctor = userService.findDoctorById(id);
+        List<Appointment> appointments = appointmentService.findDoctorAppointmentsToday(doctor);
+        return ResponseEntity.ok(appointments);
     }
 
     @PutMapping("/{doctorId}/appointments/{appointmentId}/confirm")
