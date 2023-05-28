@@ -4,6 +4,7 @@ import com.example.bloodbank_project.dto.DoctorDTO;
 import com.example.bloodbank_project.entity.Appointment;
 import com.example.bloodbank_project.entity.Doctor;
 import com.example.bloodbank_project.entity.DonationCenter;
+import com.example.bloodbank_project.entity.Donor;
 import com.example.bloodbank_project.response.AppointmentResponse;
 import com.example.bloodbank_project.service.AppointmentService;
 import com.example.bloodbank_project.service.DonationCenterService;
@@ -108,9 +109,11 @@ public class DoctorController {
         AppointmentResponse appointmentResponse = new AppointmentResponse(true, false, false);
         for (Appointment appointment : appointments) {
                  if(appointment.getId()==appointmentId && !appointment.isStatus())
-                     appointment.setStatus(true);
+                 {appointment.setStatus(true);
                      appointmentResponse.setConfirmed(true);
-                     appointmentService.updateAppointment(appointmentId,true);
+                     Donor donor=appointment.getDonor();
+                     donor.setChances(donor.getChances()+2);
+                     appointmentService.updateAppointment(appointmentId,true);}
              }
         return ResponseEntity.ok(appointmentResponse);
     }

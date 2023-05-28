@@ -2,6 +2,7 @@ package com.example.bloodbank_project.service.impl;
 
 import com.example.bloodbank_project.dto.AppointmentDTO;
 import com.example.bloodbank_project.entity.*;
+import com.example.bloodbank_project.lottery.Lottery;
 import com.example.bloodbank_project.repository.AppointmentRepo;
 import com.example.bloodbank_project.repository.DonationCenterRepo;
 import com.example.bloodbank_project.service.AppointmentService;
@@ -63,14 +64,24 @@ public class AppointmentServiceImpl implements AppointmentService {
         // Convert the LocalDateTime to Date in UTC timezone
         Date utcDate = Date.from(parsedDateTime.atZone(utcZone).toInstant());
 
+        Donor donor=userService.findDonorById(appointmentDTO.getDonorId());
+        System.out.println(donor.getChances());
+        donor.setChances(donor.getChances()+1);
+        System.out.println(donor.getChances());
+
         appointment.setDate(utcDate);
-        appointment.setDonor(userService.findDonorById(appointmentDTO.getDonorId()));
+        appointment.setDonor(donor);
         appointment.setDonationCenter(donationCenterRepo.findDonationCenterById(appointmentDTO.getDonationCenter().getId()));
         appointment.setStatus(false);
+        appointment.setNotification(appointmentDTO.getNotification());
+
+
+        System.out.println(appointmentDTO.getNotification());
 
         System.out.println(appointmentDTO.getDonationCenter().getCenterName());
         Doctor doctor = userService.findDoctorWithMinAppointments(appointmentDTO.getDonationCenter());
         appointment.setDoctor(doctor);
+
         appointmentRepo.save(appointment);
     }
 
@@ -97,6 +108,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment=appointmentRepo.findAppointmentById(id);
         if(appointment!=null)
         {
+            Donor donor=userService.findDonorById(appointment.getDonor().getId());
+            donor.setChances(donor.getChances()-1);
             appointmentRepo.deleteById(id);
         }
     }
@@ -113,5 +126,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     public int getAppointmentCountByDateAndDonationCenter(Date date, DonationCenter donationCenter) {
         return appointmentRepo.getAppointmentCountByDateAndDonationCenter(date, donationCenter);
     }
+    @Override
+    public List<Appointment> getAppointmentsByDateRange(Date startDate, Date endDate) {
+
+        List<Appointment> appointments = appointmentRepo.getAppointmentsByDateRange(startDate, endDate);
+
+        return appointments;
+    }
+
 
 }

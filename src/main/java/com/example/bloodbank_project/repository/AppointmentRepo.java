@@ -39,5 +39,6 @@ public interface AppointmentRepo extends JpaRepository<Appointment,Integer> {
         List<Appointment> findDoctorAppointmentsToday(@Param("doctor") Doctor doctor);
         @Query("SELECT COUNT(a) FROM Appointment a WHERE DATE(a.date) = DATE(:date) AND a.donationCenter = :donationCenter")
         int getAppointmentCountByDateAndDonationCenter(@Param("date") Date date, @Param("donationCenter") DonationCenter donationCenter);
-
+        @Query("SELECT a FROM Appointment a WHERE a.date >= :startDate AND a.date <= :endDate")
+        List<Appointment> getAppointmentsByDateRange(Date startDate, Date endDate);
 }

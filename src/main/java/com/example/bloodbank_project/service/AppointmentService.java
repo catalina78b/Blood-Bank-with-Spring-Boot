@@ -27,5 +27,5 @@ public interface AppointmentService {
     public Page<Appointment> findDoctorAppointments(Doctor doctor, Pageable pageable);
     public List<Appointment> findDoctorAppointmentsToday(Doctor doctor);
     public int getAppointmentCountByDateAndDonationCenter(Date date, DonationCenter donationCenter);
-
+    public List<Appointment> getAppointmentsByDateRange(Date startDate, Date endDate);
 }

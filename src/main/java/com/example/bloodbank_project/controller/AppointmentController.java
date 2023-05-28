@@ -2,25 +2,23 @@ package com.example.bloodbank_project.controller;
 
 import com.example.bloodbank_project.dto.AppointmentDTO;
 import com.example.bloodbank_project.entity.Appointment;
-import com.example.bloodbank_project.entity.Doctor;
 import com.example.bloodbank_project.entity.Donor;
 import com.example.bloodbank_project.response.AppointmentResponse;
 import com.example.bloodbank_project.service.AppointmentService;
+import com.example.bloodbank_project.service.EmailService;
 import com.example.bloodbank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
+import javax.mail.MessagingException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -33,9 +31,19 @@ public class AppointmentController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    EmailService emailService;
+
     @PostMapping("/add-appointment")
     public ResponseEntity<?> createAppointment(@RequestBody AppointmentDTO appointmentDTO) throws ParseException {
+        System.out.println(appointmentDTO.getNotification());
         appointmentService.saveAppointment(appointmentDTO);
+        try {
+            emailService.sendAppointmentConfirmationEmail(appointmentDTO);
+            System.out.println("Email sent");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
         return ResponseEntity.ok(new AppointmentResponse(true, false, false));
     }
 
@@ -92,6 +100,4 @@ public class AppointmentController {
 
         return ResponseEntity.ok(valid);
     }
-
-
 }

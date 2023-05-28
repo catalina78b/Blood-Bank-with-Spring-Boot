@@ -25,4 +25,5 @@ public interface UserService {
      void updateDonor(int id,String firstName, String lastName, String email, String password,String county, String bloodType,String phoneNumber );
      LoginResponse loginUser(LoginDTO loginDTO);
      public Doctor findDoctorWithMinAppointments(DonationCenter donationCenter);
+     public Doctor findDoctorByAppointmentId(int appointmentId);
 }

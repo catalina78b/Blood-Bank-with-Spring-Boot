@@ -13,6 +13,8 @@ public class Appointment {
 
     private boolean status;
 
+    private String notification;
+
     @ManyToOne
     @JoinColumn(name = "donor_id")
     private Donor donor;
@@ -28,9 +30,10 @@ public class Appointment {
     @DateTimeFormat(pattern="dd-MM-yyyy")
     private Date date;
 
-    public Appointment(int id, boolean status, Donor donor, Doctor doctor, DonationCenter donationCenter, Date date) {
+    public Appointment(int id, boolean status, String notification, Donor donor, Doctor doctor, DonationCenter donationCenter, Date date) {
         this.id = id;
         this.status = status;
+        this.notification = notification;
         this.donor = donor;
         this.doctor = doctor;
         this.donationCenter = donationCenter;
@@ -87,5 +90,13 @@ public class Appointment {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getNotification() {
+        return notification;
+    }
+
+    public void setNotification(String notification) {
+        this.notification = notification;
     }
 }

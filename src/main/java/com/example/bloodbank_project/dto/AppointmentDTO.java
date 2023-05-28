@@ -13,6 +13,17 @@ public class AppointmentDTO {
     private DonationCenter donationCenter;
     private Date date;
     private Doctor doctor;
+    private String notification;
+
+    public AppointmentDTO(int id, boolean status, int donorId, DonationCenter donationCenter, Date date, Doctor doctor, String notification) {
+        this.id = id;
+        this.status = status;
+        this.donorId = donorId;
+        this.donationCenter = donationCenter;
+        this.date = date;
+        this.doctor = doctor;
+        this.notification = notification;
+    }
 
     public AppointmentDTO(int id, boolean status, int donorId, DonationCenter donationCenter, Date date, Doctor doctor) {
         this.id = id;
@@ -23,10 +34,11 @@ public class AppointmentDTO {
         this.doctor = doctor;
     }
 
-    public AppointmentDTO(int donorId, DonationCenter donationCenter, Date date) {
+    public AppointmentDTO(int donorId, DonationCenter donationCenter, Date date,String notification) {
         this.donorId = donorId;
         this.donationCenter = donationCenter;
         this.date = date;
+        this.notification=notification;
     }
 
     public AppointmentDTO() {
@@ -80,4 +92,11 @@ public class AppointmentDTO {
         this.date = date;
     }
 
+    public String getNotification() {
+        return notification;
+    }
+
+    public void setNotification(String notification) {
+        this.notification = notification;
+    }
 }

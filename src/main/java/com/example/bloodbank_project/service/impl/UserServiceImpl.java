@@ -97,6 +97,7 @@ public class UserServiceImpl implements UserService {
         donor.setBloodType(donorDTO.getBloodType());
         donor.setCounty(donorDTO.getCounty());
         donor.setRole(donorDTO.getRole());
+        donor.setChances(0);
         donorRepo.save(donor);
     }
 
@@ -170,6 +171,10 @@ public class UserServiceImpl implements UserService {
     public void updateDonor(int id,String firstName, String lastName, String email,String password, String county,String bloodType,String phoneNumber){
         donorRepo.updateDonor(id,firstName,lastName,
                 email,password,county,bloodType,phoneNumber);
+    }
+    @Override
+    public Doctor findDoctorByAppointmentId(int appointmentId) {
+        return doctorRepo.findDoctorByAppointmentId(appointmentId);
     }
 
     @Override

@@ -11,13 +11,17 @@ public class Donor extends User{
     private String county;
     @Column
     private String phoneNumber;
+    @Column(columnDefinition = "integer default 0")
+    private Integer chances;
 
 
-    public Donor(String firstName, String lastName, String email, String password, String bloodType, String county,String phoneNumber) {
+
+    public Donor(String firstName, String lastName, String email, String password, String bloodType, String county,String phoneNumber,Integer chances) {
         super(firstName, lastName, email, password);
         this.bloodType = bloodType;
         this.county = county;
         this.phoneNumber=phoneNumber;
+        this.chances=chances;
     }
 
     public Donor(String firstName, String lastName, String email, String password) {
@@ -50,6 +54,14 @@ public class Donor extends User{
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public Integer getChances() {
+        return chances;
+    }
+
+    public void setChances(Integer chances) {
+        this.chances = chances;
     }
 
     @Override
